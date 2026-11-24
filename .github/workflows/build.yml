@@ -1,0 +1,43 @@
+name: Build GlassTabBar dylib
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile GlassTabBar.dylib
+        run: |
+          xcrun -sdk iphoneos clang -arch arm64 -dynamiclib -fobjc-arc \
+            -miphoneos-version-min=15.0 \
+            -O2 -Wall -Wno-unused-variable -Wno-deprecated-declarations \
+            -framework UIKit -framework Foundation -framework QuartzCore -framework CoreGraphics \
+            -install_name @rpath/GlassTabBar.dylib \
+            -o GlassTabBar.dylib \
+            Tweak.m GTBFlagManager.m GTBSettingsViewController.m
+          ls -lh GlassTabBar.dylib
+          file GlassTabBar.dylib
+          otool -L GlassTabBar.dylib
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GlassTabBar
+          path: GlassTabBar.dylib
+
+      - name: Create GitHub Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GlassTabBar.dylib
