@@ -467,6 +467,11 @@ static NSString *const kGTBKeyPrefix = @"GTB_Flag_v1_";
     [[NSNotificationCenter defaultCenter] postNotificationName:GTBFlagsDidChangeNotification object:nil];
 }
 
+- (NSArray<NSString *> *)fullBarBackgroundTabsValue {
+    BOOL on = [self isFlagEnabled:@"ttk_tabbar_liquid_glass_full_bar_background_tabs"];
+    return on ? @[ @"homepage_hot", @"homepage_follow", @"homepage_friends", @"homepage_shop", @"notification_notice", @"user_profile", @"*" ] : @[];
+}
+
 - (NSDictionary<NSString *, id> *)buildLiquidGlassConfigDict {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     for (GTBFlagItem *item in self.items) {
@@ -474,10 +479,13 @@ static NSString *const kGTBKeyPrefix = @"GTB_Flag_v1_";
             dict[item.key] = @([self isFlagEnabled:item.key]);
         }
     }
-    // Mirror the 3 core booleans that TTKTabBarLiquidGlassConfig also checks inside config dict
+    // Mirror keys that TTKTabBarLiquidGlassConfig (Swift) reads directly from ttk_tabbar_liquid_glass_config
     dict[@"ttk_tabbar_liquid_glass_enabled"] = @([self isFlagEnabled:@"ttk_tabbar_liquid_glass_enabled"]);
     dict[@"ttk_tabbar_fold_screen_liquid_glass_enabled"] = @([self isFlagEnabled:@"ttk_tabbar_fold_screen_liquid_glass_enabled"]);
     dict[@"ttk_tabbar_non_fullscreen_liquid_glass_enabled"] = @([self isFlagEnabled:@"ttk_tabbar_non_fullscreen_liquid_glass_enabled"]);
+    dict[@"ttk_tabbar_scroll_scale_enable"] = @([self isFlagEnabled:@"ttk_tabbar_scroll_scale_enable"]);
+    dict[@"ttk_tabbar_liquid_glass_deferred_page_switch_enabled"] = @([self isFlagEnabled:@"ttk_tabbar_liquid_glass_deferred_page_switch_enabled"]);
+    dict[@"ttk_tabbar_liquid_glass_full_bar_background_tabs"] = [self fullBarBackgroundTabsValue];
     return [dict copy];
 }
 
@@ -505,7 +513,7 @@ static NSString *const kGTBKeyPrefix = @"GTB_Flag_v1_";
         case GTBFlagStorageBool:
             return @(on);
         case GTBFlagStorageFullBarTabs:
-            return on ? @[ @"homepage_hot", @"homepage_follow", @"homepage_friends", @"homepage_shop", @"notification_notice", @"user_profile", @"*" ] : @[];
+            return [self fullBarBackgroundTabsValue];
         case GTBFlagStorageClearDeviceBlock:
             return on ? @[] : nil;
         case GTBFlagStorageTuxVersions:

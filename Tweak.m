@@ -238,6 +238,24 @@ static BOOL hook_TTKABTest_smaller450(id self, SEL _cmd) {
     return GTBShouldOverrideBool(@"enable_liquid_glass_smaller_450", orig);
 }
 
+static BOOL (*orig_TTKABTest_animWindow)(id, SEL) = NULL;
+static BOOL hook_TTKABTest_animWindow(id self, SEL _cmd) {
+    BOOL orig = orig_TTKABTest_animWindow ? orig_TTKABTest_animWindow(self, _cmd) : NO;
+    return GTBShouldOverrideBool(@"ttk_tabbar_animator_transition_window", orig);
+}
+
+static BOOL (*orig_TTKABTest_fakeGlassSnapshot)(id, SEL) = NULL;
+static BOOL hook_TTKABTest_fakeGlassSnapshot(id self, SEL _cmd) {
+    BOOL orig = orig_TTKABTest_fakeGlassSnapshot ? orig_TTKABTest_fakeGlassSnapshot(self, _cmd) : NO;
+    return GTBShouldOverrideBool(@"ttk_tabbar_fake_bar_glass_snapshot", orig);
+}
+
+static BOOL (*orig_TTKABTest_alphaGuard)(id, SEL) = NULL;
+static BOOL hook_TTKABTest_alphaGuard(id self, SEL _cmd) {
+    BOOL orig = orig_TTKABTest_alphaGuard ? orig_TTKABTest_alphaGuard(self, _cmd) : NO;
+    return GTBShouldOverrideBool(@"ttk_tabbar_transition_alpha_guard", orig);
+}
+
 #pragma mark - Layer 3: Native Settings UI Entry Point (TTKSettingsViewController)
 
 static char kGTBButtonAddedKey;
@@ -341,6 +359,9 @@ static void GTBInstallAllHooks(void) {
             GTB_HOOK_CLS(cls, @selector(ttkTabbarLiquidGlassPlusButtonSizeFix), hook_TTKABTest_plusFix, orig_TTKABTest_plusFix);
             GTB_HOOK_CLS(cls, @selector(ttkTabbarScrollCompactPerfConfig), hook_TTKABTest_scrollPerfConfig, orig_TTKABTest_scrollPerfConfig);
             GTB_HOOK_CLS(cls, @selector(enableLiquidGlassForSmallerThan450DevicesServer), hook_TTKABTest_smaller450, orig_TTKABTest_smaller450);
+            GTB_HOOK_CLS(cls, @selector(ttTabbarAnimatorTransitionWindow), hook_TTKABTest_animWindow, orig_TTKABTest_animWindow);
+            GTB_HOOK_CLS(cls, @selector(ttTabbarFakeBarGlassSnapshot), hook_TTKABTest_fakeGlassSnapshot, orig_TTKABTest_fakeGlassSnapshot);
+            GTB_HOOK_CLS(cls, @selector(ttTabbarTransitionAlphaGuard), hook_TTKABTest_alphaGuard, orig_TTKABTest_alphaGuard);
         }
 
         if (GTBMarkClassHooked(@"TTKSettingsViewController", &cls)) {
